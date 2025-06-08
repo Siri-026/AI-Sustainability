@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoTracker - Challenges</title>
+  <style>
+    /* Basic reset */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      color: #374151;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 1rem 2rem 4rem;
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: #111827;
+    }
+    p.subtitle {
+      color: #6b7280;
+      margin-top: 0;
+      margin-bottom: 2rem;
+    }
+
+    /* Stats Cards Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .card {
+      border-radius: 1rem;
+      padding: 1.5rem;
+      color: white;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+    }
+    .card-orange {
+      background: linear-gradient(90deg, #f97316, #ef4444);
+    }
+    .card-purple {
+      background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+    }
+    .card-green {
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+    }
+    .card .icon {
+      font-size: 3rem;
+      opacity: 0.75;
+    }
+    .card .details p {
+      margin: 0.15rem 0;
+      font-weight: 600;
+    }
+    .card .details p.small {
+      font-weight: 400;
+      font-size: 0.875rem;
+      opacity: 0.85;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+    .tab-btn {
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      color: #4b5563;
+      font-size: 1rem;
+      user-select: none;
+    }
+    .tab-btn.active {
+      background: #16a34a;
+      color: white;
+      border-color: #15803d;
+      box-shadow: 0 6px 12px rgba(22,163,74,0.5);
+    }
+    .tab-btn:hover:not(.active) {
+      background: #d1fae5;
+      color: #16a34a;
+    }
+
+    /* Challenges Grid */
+    .challenges-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .challenge-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .challenge-card.completed {
+      border-color: #22c55e;
+      box-shadow: 0 0 15px #22c55eaa;
+    }
+    .challenge-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    .challenge-icons {
+      font-size: 2.25rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .difficulty-badge {
+      font-weight: 600;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      color: #374151;
+    }
+    .difficulty-easy {
+      background-color: #dcfce7;
+      color: #22c55e;
+    }
+    .difficulty-medium {
+      background-color: #fef3c7;
+      color: #ca8a04;
+    }
+    .difficulty-hard {
+      background-color: #fee2e2;
+      color: #dc2626;
+    }
+
+    /* Challenge title & description */
+    .challenge-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #111827;
+    }
+    .challenge-desc {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 1rem;
+      flex-grow: 1;
+    }
+
+    /* Progress section */
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 0.3rem;
+    }
+    .progress-bar {
+      background: #e5e7eb;
+      border-radius: 9999px;
+      height: 0.5rem;
+      width: 100%;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .progress-fill {
+      height: 100%;
+      background-color: #16a34a;
+      transition: width 0.3s ease;
+    }
+    .progress-fill.incomplete {
+      background-color: #3b82f6;
+    }
+
+    /* Points and carbon saving */
+    .challenge-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #15803d;
+    }
+    .challenge-info .points {
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .challenge-info .carbon {
+      color: #16a34a;
+    }
+
+    /* Completed message */
+    .completed-msg {
+      background: #dcfce7;
+      color: #15803d;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    /* Action buttons */
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    button.action-btn {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button.increment {
+      background-color: #d1fae5;
+      color: #15803d;
+    }
+    button.increment:hover {
+      background-color: #a7f3d0;
+    }
+    button.complete {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+    button.complete:hover {
+      background-color: #bbf7d0;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      color: #9ca3af;
+      margin-top: 4rem;
+    }
+    .empty-state svg {
+      width: 4rem;
+      height: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header style="text-align:center; margin-bottom:2rem;">
+      <div style="font-size:2rem; color:#16a34a; margin-bottom:0.5rem;">🏆</div>
+      <h1>Challenges</h1>
+      <p class="subtitle">Track your sustainability goals with fun challenges</p>
+    </header>
+
+    <!-- Stats Cards -->
+    <section class="stats-grid" aria-label="User statistics">
+      <div class="card card-orange" role="region" aria-labelledby="streak-title">
+        <div class="details">
+          <p id="streak-title">Daily Streak</p>
+          <p style="font-size:2.25rem;" id="daily-streak">5</p>
+          <p class="small">days</p>
+        </div>
+        <div class="icon">🔥</div>
+      </div>
+      <div class="card card-purple" role="region" aria-labelledby="points-title">
+        <div class="details">
+          <p id="points-title">Total Points</p>
+          <p style="font-size:2.25rem;" id="total-points">0</p>
+          <p class="small">earned</p>
+        </div>
+        <div class="icon">🎯</div>
+      </div>
+      <div class="card card-green" role="region" aria-labelledby="completed-title">
+        <div class="details">
+          <p id="completed-title">Completed Challenges</p>
+          <p style="font-size:2.25rem;" id="completed-challenges">0</p>
+          <p class="small">challenges</p>
+        </div>
+        <div class="icon">✔️</div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist" aria-label="Challenge categories">
+      <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="daily-challenges" id="tab-daily">📅 Daily</button>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="weekly-challenges" id="tab-weekly">⚡ Weekly</button>
+    </nav>
+
+    <!-- Challenges Grid -->
+    <section class="challenges-grid" id="daily-challenges" role="tabpanel" aria-labelledby="tab-daily">
+      <!-- Example Challenge Card -->
+      <article class="challenge-card" data-point="10" data-completed="false" data-progress="0" data-goal="1">
+        <div class="challenge-header">
+          <div class="challenge-icons">
+            🌱 ⚡
+          </div>
+          <div class="difficulty-badge difficulty-easy">easy</div>
+        </div>
+        <h3 class="challenge-title">Reduce electricity use by 1 hour</h3>
+        <p class="challenge-desc">Turn off unused appliances to save energy and reduce carbon footprint.</p>
+
+        <div class="progress-labels">
+          <span>Progress</span>
+          <span class="progress-text">0 / 1 hour</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill incomplete" style="width: 0%;"></div>
+        </div>
+
+        <div class="challenge-info">
+          <div class="points">🏆 10 points</div>
+          <div class="carbon">-0.5kg CO₂</div>
+        </div>
+
+        <div class="actions">
+          <button class="action-btn increment">+1 hour</button>
+          <button class="action-btn complete" disabled>Complete</button>
+        </div>
+      </article>
+
+      <!-- Add more challenge cards here -->
+    </section>
+
+    <section class="challenges-grid" id="weekly-challenges" role="tabpanel" aria-labelledby="tab-weekly" hidden>
+      <!-- Weekly challenges would go here -->
+      <article class="challenge-card completed" data-point="30" data-completed="true" data-progress="3" data-goal="3">
+        <div class="challenge-header">
+          <div class="challenge-icons">
+            🚗 ♻️
+          </div>
+          <div class="difficulty-badge difficulty-hard">hard</div>
+        </div>
+        <h3 class="challenge-title">Bike to work 3 times</h3>
+        <p class="challenge-desc">Reduce transport emissions by cycling instead of driving.</p>
+
+        <div class="progress-labels">
+          <span>Progress</span>
+          <span class="progress-text">3 / 3 times</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 100%;"></div>
+        </div>
+
+        <div class="challenge-info">
+          <div class="points">🏆 30 points</div>
+          <div class="carbon">-3kg CO₂</div>
+        </div>
+
+        <div class="completed-msg">
+          ✔️ Completed
+        </div>
+      </article>
+    </section>
+
+  </div>
+
+  <script>
+    // Tab switching logic
+    const dailyBtn = document.getElementById('tab-daily');
+    const weeklyBtn = document.getElementById('tab-weekly');
+    const dailyPanel = document.getElementById('daily-challenges');
+    const weeklyPanel = document.getElementById('weekly-challenges');
+
+    dailyBtn.addEventListener('click', () => {
+      dailyBtn.classList.add('active');
+      weeklyBtn.classList.remove('active');
+      dailyBtn.setAttribute('aria-selected', 'true');
+      weeklyBtn.setAttribute('aria-selected', 'false');
+      dailyPanel.hidden = false;
+      weeklyPanel.hidden = true;
+    });
+
+    weeklyBtn.addEventListener('click', () => {
+      weeklyBtn.classList.add('active');
+      dailyBtn.classList.remove('active');
+      weeklyBtn.setAttribute('aria-selected', 'true');
+      dailyBtn.setAttribute('aria-selected', 'false');
+      weeklyPanel.hidden = false;
+      dailyPanel.hidden = true;
+    });
+
+    // Elements for stats update
+    const totalPointsEl = document.getElementById('total-points');
+    const completedChallengesEl = document.getElementById('completed-challenges');
+
+    // Function to update stats based on current completed challenges
+    function updateStats() {
+      let totalPoints = 0;
+      let completedCount = 0;
+
+      const allChallenges = document.querySelectorAll('.challenge-card');
+      allChallenges.forEach(card => {
+        const completed = card.dataset.completed === 'true';
+        const points = parseInt(card.dataset.point, 10) || 0;
+
+        if (completed) {
+          completedCount++;
+          totalPoints += points;
+        }
+      });
+
+      totalPointsEl.textContent = totalPoints;
+      completedChallengesEl.textContent = completedCount;
+    }
+
+    // Initialize stats on page load
+    updateStats();
+
+    // Add event listeners to buttons inside each challenge card
+    document.querySelectorAll('.challenge-card').forEach(card => {
+      const incrementBtn = card.querySelector('.increment');
+      const completeBtn = card.querySelector('.complete');
+      const progressFill = card.querySelector('.progress-fill');
+      const progressText = card.querySelector('.progress-text');
+
+      // Update buttons based on initial progress
+      let progress = parseInt(card.dataset.progress) || 0;
+      const goal = parseInt(card.dataset.goal) || 1;
+
+      // Set complete button disabled state initially
+      completeBtn.disabled = progress < goal;
+
+      // Function to update progress display
+      function updateProgressDisplay() {
+        const percent = Math.min((progress / goal) * 100, 100);
+        progressFill.style.width = percent + '%';
+
+        if (percent < 100) {
+          progressFill.classList.add('incomplete');
+        } else {
+          progressFill.classList.remove('incomplete');
+        }
+        progressText.textContent = `${progress} / ${goal} ${card.querySelector('.challenge-desc').textContent.includes('hour') ? 'hour' : 'times'}`;
+      }
+
+      updateProgressDisplay();
+
+      // Increment button logic
+      incrementBtn.addEventListener('click', () => {
+        if (progress < goal) {
+          progress++;
+          card.dataset.progress = progress;
+          updateProgressDisplay();
+          if (progress >= goal) {
+            completeBtn.disabled = false;
+          }
+        }
+      });
+
+      // Complete button logic
+      completeBtn.addEventListener('click', () => {
+        if (progress >= goal && card.dataset.completed !== 'true') {
+          card.dataset.completed = 'true';
+          card.classList.add('completed');
+          completeBtn.disabled = true;
+
+          // Hide increment button and show completed message
+          incrementBtn.style.display = 'none';
+
+          // Add completed message if not present
+          let completedMsg = card.querySelector('.completed-msg');
+          if (!completedMsg) {
+            completedMsg = document.createElement('div');
+            completedMsg.className = 'completed-msg';
+            completedMsg.textContent = '✔️ Completed';
+            card.appendChild(completedMsg);
+          }
+
+          updateStats();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
